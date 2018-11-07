@@ -1,7 +1,9 @@
 # ghichep-k8s
 ## K8s pods:
 1 set các container được khởi tạo cùng nhau, mỗi container trong pod chạy 1 process và 1 port duy nhất. Có thể coi pod như 1 VM và các container trong đó là các tiến trình. Các container trong 1 pod có thể giao tiếp với nhau thông qua localhost.
-Các container trong pod share nhau về network cũng như storage
+Các container trong pod share nhau về network cũng như storage.
+- Các container trong 1 pod luôn chạy trên cùng 1 node. 
+- Các pod của 1 deployment có thể chạy trên nhiều node khác nhau.
 
 ## K8s Deployment
   Định nghĩa cách triển khai 1 pod bao gồm cả các thông tin về replicas, phương thức release, rollback...
