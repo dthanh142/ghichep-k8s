@@ -75,6 +75,31 @@ spec:
 
 - Canary: triển khai song song 2 version, service sẽ load balance giữa cả version mới và cũ. Sau 1 thời gian nếu không có lỗi thì sẽ scale up replica set mới và xóa bỏ deployment cũ.
 
+#### rolling upgrade
+Thực hiện update 1 deployment:
+```...
+spec:
+      containers:
+        - image: client-v2   => thay đổi image version
+...
+```
+apply thay đổi:
+
+```kubectl apply -f frontend-deployment-v2.yaml --record
+deployment.extensions/client configured
+```
+
+Quá trình này sẽ update lần lượt từng pod với version mới và xóa pod có version cũ đi:
+
+```kubectl rollout status deployment client
+Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
+Waiting for rollout to finish: 1 old replicas are pending termination...
+Waiting for rollout to finish: 1 old replicas are pending termination...
+deployment "frontend" successfully rolled out
+```
+
+
 ## K8s service:
  #### Network type:
 - ClusterIP: type mặc định, type này gán cho service 1 IP nội bộ trong k8s cluster. Service chỉ có thể gọi tới từ nội bộ các pod trong k8s cluster
