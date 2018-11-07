@@ -77,26 +77,30 @@ spec:
 
 #### rolling upgrade
 Thực hiện update 1 deployment:
-```...
+```
+...
 spec:
       containers:
         - image: client-v2   => thay đổi image version
 ...
 ```
+
 apply thay đổi:
 
-```kubectl apply -f frontend-deployment-v2.yaml --record
+```
+> kubectl apply -f frontend-deployment-v2.yaml --record
 deployment.extensions/client configured
 ```
 
 Quá trình này sẽ update lần lượt từng pod với version mới và xóa pod có version cũ đi:
 
-```kubectl rollout status deployment client
+ ```
+> kubectl rollout status deployment client
 Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
 Waiting for rollout to finish: 2 out of 3 new replicas have been updated...
 Waiting for rollout to finish: 1 old replicas are pending termination...
 Waiting for rollout to finish: 1 old replicas are pending termination...
-deployment "frontend" successfully rolled out
+deployment "frontend" successfully rolled out 
 ```
 
 
