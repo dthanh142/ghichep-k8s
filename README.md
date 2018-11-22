@@ -52,6 +52,7 @@ spec:
  Inspect the secret: 
  
  > kubectl get secret repo.vndirect.com.vn --output=yaml
+ 
  ```yaml
  apiVersion: v1
 data:
@@ -69,8 +70,7 @@ type: kubernetes.io/dockerconfigjson
 
 > kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
 
-```{"auths":{"repo.vndirect.com.vn":{"username":"developer","password":"123456","auth":"ZGV2ZWxvcG...AMTIzNA=="}}}
-```
+```{"auths":{"repo.vndirect.com.vn":{"username":"developer","password":"123456","auth":"ZGV2ZWxvcG...AMTIzNA=="}}}```
 
 
 ## K8s Deployment
