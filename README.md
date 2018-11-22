@@ -5,11 +5,80 @@ Các container trong pod share nhau về network cũng như storage.
 - Các container trong 1 pod luôn chạy trên cùng 1 node. 
 - Các pod của 1 deployment có thể chạy trên nhiều node khác nhau.
 
+### Private registry:
+Để tạo 1 pod hoặc deployment mà kéo image từ private registry, cần follow:
+- Login to docker registry
+- Tạo secret type chứa thông tin login docker registry cho kubernetes
+- Sử dụng secret đó để pull image trong yaml
+
+Ví dụ:
+  > docker login repo.vndirect.com.vn
+  
+  > kc create secret docker-registry {registry-name} --docker-server=repo.vndirect.com.vn --docker-username=developer --docker-password=123456
+  
+  Use k8s secret to pull private images:
+  
+```yaml
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nodejs6-test
+
+spec:
+  containers:
+  - name: nodejs6-test-container
+    image: repo.vndirect.com.vn/base-images/nodejs:6
+    env:
+    - name: MASTER
+      value: "true"
+    ports:
+    - containerPort: 6379
+    resources:
+      limits:
+        cpu: "0.1"
+    volumeMounts:
+    - mountPath: /opt/configtest
+      name: config
+
+  volumes:
+    - name: config
+      configMap:
+        name: game-config
+  imagePullSecrets:             # use this secret to pull private images
+  - name: repo.vndirect.com.vn
+ ```
+  
+ Inspect the secret: 
+ 
+ > kubectl get secret repo.vndirect.com.vn --output=yaml
+ ```yaml
+ apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJyZX...SE5BTVRJek5BPT0ifX19
+kind: Secret
+metadata:
+  creationTimestamp: 2018-11-22T07:44:55Z
+  name: repo.vndirect.com.vn
+  namespace: default
+  resourceVersion: "20896"
+  selfLink: /api/v1/namespaces/default/secrets/repo.vndirect.com.vn
+  uid: 813b62d9-ee2a-11e8-aee0-005056a3becb
+type: kubernetes.io/dockerconfigjson
+```
+
+> kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
+
+```{"auths":{"repo.vndirect.com.vn":{"username":"developer","password":"123456","auth":"ZGV2ZWxvcG...AMTIzNA=="}}}
+```
+
+
 ## K8s Deployment
   Định nghĩa cách triển khai 1 pod bao gồm cả các thông tin về replicas, phương thức release, rollback...
   Ví dụ :
   
-  ```apiVersion: extensions/v1beta1
+```yaml
+apiVersion: extensions/v1beta1
 kind: Deployment                                        
 metadata:
   name: client
@@ -36,14 +105,16 @@ spec:
 
 #### deployment strategy:
 - Recreate: Phù hợp cho triển khai khi dev. K8s sẽ terminate toàn bộ pod đang chạy và khởi tạo pod mới.
- ```spec:
+ ```yaml
+ spec:
   replicas: 3
   strategy:
     type: Recreate
  ```
  
 - Ramped – slow rollout: hay còn gọi là rolling update. Triển khai 1 cụm replica set mới đồng thời giảm số lượng của cụm replica set cũ cho tới khi cụm mới đạt số lượng pod quy định.
-```spec:
+```yaml
+spec:
   replicas: 3
   strategy:
     type: RollingUpdate
@@ -54,7 +125,8 @@ spec:
 ```
 
 - Blue/Green: phương pháp này khởi tạo và chạy đồng thời 2 phiên bản của dịch vụ. Sau khi test version mới thành công thì sẽ thay đổi Service trỏ vào cụm mới dùng selector label
-```apiVersion: v1
+```yaml
+apiVersion: v1
 kind: Service
 metadata:
  name: my-app
@@ -79,7 +151,7 @@ spec:
 
 #### rolling upgrade
 Thực hiện update 1 deployment:
-```
+```yaml
 ...
 spec:
       containers:
@@ -118,7 +190,8 @@ deployment "frontend" successfully rolled out
    Thường trong 1 service sẽ có nhiều pod chạy nhiều process trên các cổng và Ip khác nhau. Vì vậy, để cho service biết nên trỏ tới pod nào để expose ra ngoài, ta sử dụng label trên pod và selector trên service.
    Ví dụ:
    
-   ```apiVersion: v1
+```yaml
+apiVersion: v1
 kind: Pod
 metadata:
   name: client
@@ -134,7 +207,8 @@ spec:
    ```
         
         
-   ```apiVersion: v1
+```yaml
+apiVersion: v1
 kind: Service              
 metadata:
   name: client-lb
@@ -146,8 +220,5 @@ spec:
     targetPort: 80         
   selector:                
     app: client      # => selector trỏ tới các pod có label app = client
-   ```
-
-
-
+```
 
