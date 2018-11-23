@@ -4,6 +4,7 @@
 Các container trong pod share nhau về network cũng như storage.
 - Các container trong 1 pod luôn chạy trên cùng 1 node. 
 - Các pod của 1 deployment có thể chạy trên nhiều node khác nhau.
+- Các containers trong cùng pod share nhau chung 1 IP, volume... 
 
 ### Private registry:
 Để tạo 1 pod hoặc deployment mà kéo image từ private registry, cần follow:
