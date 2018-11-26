@@ -73,6 +73,7 @@ type: kubernetes.io/dockerconfigjson
 
 ```{"auths":{"repo.vndirect.com.vn":{"username":"developer","password":"123456","auth":"ZGV2ZWxvcG...AMTIzNA=="}}}```
 
+*** 
 
 ## K8s Deployment
   Định nghĩa cách triển khai 1 pod bao gồm cả các thông tin về replicas, phương thức release, rollback...
@@ -178,7 +179,30 @@ Waiting for rollout to finish: 1 old replicas are pending termination...
 deployment "frontend" successfully rolled out 
 ```
 
-
+### **Lỗi thường gặp trong deployment**:
+   replicas phải đứng trước các chỉ thị khác ở trong spec, nếu không pod sẽ không thể kết nối ra ngoài internet sau khi start:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: protrade
+spec:
+  replicas: 1       => replicas phải đứng trên selector và template
+  selector:
+    matchLabels:
+      app: protrade
+  template:
+    metadata:
+      labels:
+        app: protrade
+    spec:
+      containers:
+      - name: protrade-test
+        image: repo.vndirect.com.vn/protrade/plo-new
+```
+   
+   ***
+   
 ## K8s service:
  #### Network type:
 - ClusterIP: type mặc định, type này gán cho service 1 IP nội bộ trong k8s cluster. Service chỉ có thể gọi tới từ nội bộ các pod trong k8s cluster
