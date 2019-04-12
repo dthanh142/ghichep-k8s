@@ -179,27 +179,7 @@ Waiting for rollout to finish: 1 old replicas are pending termination...
 deployment "frontend" successfully rolled out 
 ```
 
-### **Lỗi thường gặp trong deployment**:
-   replicas phải đứng trước các chỉ thị khác ở trong spec, nếu không pod sẽ không thể kết nối ra ngoài internet sau khi start:
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: protrade
-spec:
-  replicas: 1       => replicas phải đứng trên selector và template
-  selector:
-    matchLabels:
-      app: protrade
-  template:
-    metadata:
-      labels:
-        app: protrade
-    spec:
-      containers:
-      - name: protrade-test
-        image: repo.vndirect.com.vn/protrade/plo-new
-```
+
    
    ***
    
